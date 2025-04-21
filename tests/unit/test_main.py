@@ -150,3 +150,25 @@ class TestTaskCompletion:
         tasks_sync.run_forever()
 
         mock_delete_task.assert_called_once()
+
+    @staticmethod
+    def should_verify_log_message_for_completed_tasks(mocker):
+        mocker.patch("habitica_api.HabiticaAPI.create_task")
+        mocker.patch("habitica_api.HabiticaAPI.score_task")
+        mocker.patch("habitica_api.HabiticaAPI.delete_task")
+        mocker.patch("todoist_api.TodoistAPI.sync", return_value="2023-01-01T00:00:00Z")
+        mocker.patch("todoist_api.TodoistAPI.iter_pop_newly_completed_tasks", return_value=[
+            {
+                "item_object": {
+                    "content": "Test Task",
+                    "labels": [],
+                    "priority": 1,
+                }
+            }
+        ])
+        mock_logger = mocker.patch("main._LOGGER")
+
+        tasks_sync = TasksSync()
+        tasks_sync.run_forever()
+
+        mock_logger.info.assert_any_call("Completed task in Todoist: Test Task")

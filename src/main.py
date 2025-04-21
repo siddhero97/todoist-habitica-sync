@@ -15,6 +15,7 @@ from models.habitica import HabiticaDifficulty
 from models.todoist import TodoistPriority
 from tasks_cache import TasksCache
 from todoist_api import TodoistAPI
+from log_config import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -181,6 +182,5 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(name)s) [%(levelname)s]: %(message)s")
-
+    setup_logging()
     TasksSync().run_forever()

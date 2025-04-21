@@ -79,6 +79,7 @@ class TasksCache:
         self._write_metadata("last_sync_datetime_utc", value)
 
     def save_task(self, generic_task: GenericTask) -> None:
+        self._log.info(f"Saving task: {generic_task.content}")
         with self._cursor() as cursor:
             cursor.execute(
                 "INSERT OR REPLACE INTO tasks_cache (id, task_data) VALUES (?, ?)",
@@ -86,6 +87,7 @@ class TasksCache:
             )
 
     def delete_task(self, generic_task: GenericTask) -> None:
+        self._log.info(f"Deleting task: {generic_task.content}")
         with self._cursor() as cursor:
             cursor.execute("DELETE FROM tasks_cache WHERE id = ?", (str(generic_task.id),))
 

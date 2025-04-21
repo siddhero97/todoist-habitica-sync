@@ -27,5 +27,6 @@ class DelayTimer:
         if delay := max(0.0, self._max_delay - (time.monotonic() - self._last_api_call)):
             if self._msg is not None:
                 self._log.info(self._msg.format(delay=delay))
+            self._log.info(f"Sleeping for {delay:.2f} seconds.")
             time.sleep(delay)
         self._last_api_call = time.monotonic()

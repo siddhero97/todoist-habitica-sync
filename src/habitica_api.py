@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any, Final
 
 import requests
@@ -36,6 +37,7 @@ class HabiticaAPI:
         self._resource = resource
         self._aspect = aspect
         self._headers = headers
+        self._log = logging.getLogger(self.__class__.__name__)
 
     def __getattr__(self, name):
         try:
@@ -75,7 +77,12 @@ class HabiticaAPI:
         else:
             res = getattr(requests, method)(uri, headers=http_headers, params=kwargs)
 
-        # print(res.url)  # debug...
+        self._log.info(f"API call: {method.upper()} {uri}")
+        self._log.info(f"Request headers: {http_headers}")
+        self._log.info(f"Request payload: {kwargs}")
+        self._log.info(f"Response status: {res.status_code}")
+        self._log.info(f"Response payload: {res.json()}")
+
         if res.status_code not in _SUCCESS_CODES:
             try:
                 res.raise_for_status()

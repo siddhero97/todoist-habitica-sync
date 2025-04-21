@@ -9,7 +9,7 @@ RUN python -m pip install --upgrade pip
 
 # Doesn't build consistently for armv7
 ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
-RUN pip install "cryptography<3.5" poetry
+RUN pip install "cryptography<3.5" poetry pydantic
 
 COPY pyproject.toml poetry.lock ./
 

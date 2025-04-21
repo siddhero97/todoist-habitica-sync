@@ -65,3 +65,88 @@ class TestTaskCompletion:
         habitica_api = tasks_sync.habitica
         habitica_api.delete_task.assert_not_called()
         habitica_api.score_task.assert_called_once()
+
+    @staticmethod
+    def should_log_completed_tasks(mocker):
+        mocker.patch("habitica_api.HabiticaAPI.create_task")
+        mocker.patch("habitica_api.HabiticaAPI.score_task")
+        mocker.patch("habitica_api.HabiticaAPI.delete_task")
+        mocker.patch("todoist_api.TodoistAPI.sync", return_value="2023-01-01T00:00:00Z")
+        mocker.patch("todoist_api.TodoistAPI.iter_pop_newly_completed_tasks", return_value=[
+            {
+                "item_object": {
+                    "content": "Test Task",
+                    "labels": [],
+                    "priority": 1,
+                }
+            }
+        ])
+        mock_logger = mocker.patch("main._LOGGER")
+
+        tasks_sync = TasksSync()
+        tasks_sync.run_forever()
+
+        mock_logger.info.assert_any_call("Completed task in Todoist: Test Task")
+
+    @staticmethod
+    def should_call_create_task_for_completed_tasks(mocker):
+        mocker.patch("habitica_api.HabiticaAPI.score_task")
+        mocker.patch("habitica_api.HabiticaAPI.delete_task")
+        mocker.patch("todoist_api.TodoistAPI.sync", return_value="2023-01-01T00:00:00Z")
+        mocker.patch("todoist_api.TodoistAPI.iter_pop_newly_completed_tasks", return_value=[
+            {
+                "item_object": {
+                    "content": "Test Task",
+                    "labels": [],
+                    "priority": 1,
+                }
+            }
+        ])
+        mock_create_task = mocker.patch("habitica_api.HabiticaAPI.create_task")
+
+        tasks_sync = TasksSync()
+        tasks_sync.run_forever()
+
+        mock_create_task.assert_called_once_with("Test Task", HabiticaDifficulty.TRIVIAL)
+
+    @staticmethod
+    def should_call_score_task_for_completed_tasks(mocker):
+        mocker.patch("habitica_api.HabiticaAPI.create_task")
+        mocker.patch("habitica_api.HabiticaAPI.delete_task")
+        mocker.patch("todoist_api.TodoistAPI.sync", return_value="2023-01-01T00:00:00Z")
+        mocker.patch("todoist_api.TodoistAPI.iter_pop_newly_completed_tasks", return_value=[
+            {
+                "item_object": {
+                    "content": "Test Task",
+                    "labels": [],
+                    "priority": 1,
+                }
+            }
+        ])
+        mock_score_task = mocker.patch("habitica_api.HabiticaAPI.score_task")
+
+        tasks_sync = TasksSync()
+        tasks_sync.run_forever()
+
+        mock_score_task.assert_called_once()
+
+    @staticmethod
+    def should_call_delete_task_for_completed_tasks(mocker):
+        mocker.patch("habitica_api.HabiticaAPI.create_task")
+        mocker.patch("habitica_api.HabiticaAPI.score_task")
+        mocker.patch("todoist_api.TodoistAPI.sync", return_value="2023-01-01T00:00:00Z")
+        mocker.patch("todoist_api.TodoistAPI.iter_pop_newly_completed_tasks", return_value=[
+            {
+                "item_object": {
+                    "content": "Test Task",
+                    "labels": [],
+                    "priority": 1,
+                }
+            }
+        ])
+        mock_delete_task = mocker.patch("habitica_api.HabiticaAPI.delete_task")
+
+        tasks_sync = TasksSync()
+        tasks_sync.run_forever()
+
+        mock_delete_task.assert_called_once()

@@ -157,6 +157,21 @@ class TasksSync:  # pylint: disable=too-few-public-methods
             self._task_cache.save_task(generic_task)
             self._log.info(f"'{generic_task.content}' -> {generic_task.state}")
 
+            # Log completed tasks
+            self._log.info(f"Completed task in Todoist: {todoist_completed_task.item_object.content}")
+
+            # Update Habitica with completed tasks
+            self.habitica.create_task(
+                todoist_completed_task.item_object.content,
+                self._get_task_difficulty(
+                    get_settings(),
+                    todoist_completed_task.item_object.labels,
+                    TodoistPriority(todoist_completed_task.item_object.priority),
+                ),
+            )
+            self.habitica.score_task(generic_task.get_habitica_task_id())
+            self.habitica.delete_task(generic_task.get_habitica_task_id())
+
         for generic_task in self._task_cache.in_progress_tasks():
             try:
                 state = FSMState.factory(self, generic_task)

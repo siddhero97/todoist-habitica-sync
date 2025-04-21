@@ -87,18 +87,22 @@ class HabiticaAPI:
             try:
                 res.raise_for_status()
             except requests.HTTPError as exc:
+                self._log.error(f"API call error: {exc}, JSON Payload: {res.json()}")
                 raise requests.HTTPError(f"{exc}, JSON Payload: {res.json()}", res) from exc
 
         return res.json()["data"]
 
     def create_task(self, text: str, priority: HabiticaDifficulty) -> dict[str, Any]:
         """See https://habitica.com/apidoc/#api-Task-CreateUserTasks."""
+        self._log.info(f"Creating task: {text} with priority: {priority}")
         return self.user.tasks(type="todo", text=text, priority=priority.value, _method="post")
 
     def score_task(self, task_id: str, direction: str = "up") -> None:
         """See https://habitica.com/apidoc/#api-Task-ScoreTask."""
+        self._log.info(f"Scoring task: {task_id} with direction: {direction}")
         return self.user.tasks(_id=task_id, _direction=direction, _method="post")
 
     def delete_task(self, task_id: str) -> None:
         """See https://habitica.com/apidoc/#api-Task-DeleteTask."""
+        self._log.info(f"Deleting task: {task_id}")
         return self.user.tasks(_id=task_id, _method="delete")

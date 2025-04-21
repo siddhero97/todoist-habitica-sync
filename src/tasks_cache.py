@@ -51,16 +51,19 @@ class TasksCache:
             conn.close()
 
     def _initialize_database(self) -> None:
+        self._log.info("Initializing database.")
         with self._cursor() as cursor:
             for database_schema in _DATABASE_SCHEMAS:
                 cursor.execute(database_schema)
 
     def _read_metadata(self, key: str, default: str | None = None) -> str | None:
+        self._log.info(f"Reading metadata for key: {key}")
         with self._cursor() as cursor:
             cursor.execute("SELECT value FROM metadata WHERE key = ?", (key,))
             return row[0] if (row := cursor.fetchone()) else default
 
     def _write_metadata(self, key: str, value: str) -> None:
+        self._log.info(f"Writing metadata for key: {key} with value: {value}")
         with self._cursor() as cursor:
             cursor.execute(
                 "INSERT OR REPLACE INTO metadata (key, value) VALUES (?, ?)",
@@ -99,4 +102,5 @@ class TasksCache:
                 if not (row := cursor.fetchone()):
                     break
 
+                self._log.info(f"Retrieving task: {row['task_data']}")
                 yield GenericTask(**json.loads(row["task_data"]))

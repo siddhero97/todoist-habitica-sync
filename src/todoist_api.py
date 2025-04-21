@@ -44,7 +44,14 @@ class TodoistAPI:
             params=QueryParamsCompletedGetAll(since=self._last_sync_datetime_utc).model_dump(exclude_none=True),
         )
 
+        self._log.info(f"API call: GET {self._ENDPOINT_COMPLETED_GET_ALL}")
+        self._log.info(f"Request headers: {self._headers}")
+        self._log.info(f"Request payload: {QueryParamsCompletedGetAll(since=self._last_sync_datetime_utc).model_dump(exclude_none=True)}")
+        self._log.info(f"Response status: {response.status_code}")
+        self._log.info(f"Response payload: {response.json()}")
+
         if response.status_code == HTTPStatus.FORBIDDEN:
+            self._log.error("Invalid API token for Todoist.")
             raise RuntimeError(
                 "Invalid API token for Todoist. Please check that is matches the one "
                 "from https://todoist.com/app/settings/integrations/developer."

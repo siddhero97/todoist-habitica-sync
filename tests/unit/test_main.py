@@ -41,3 +41,27 @@ class TestGetTaskDifficulty:
         )
         labels = ["Urgent", "Important"]
         assert TasksSync._get_task_difficulty(settings, labels, TodoistPriority.P1) == HabiticaDifficulty.HARD
+
+
+class TestTaskCompletion:
+    @staticmethod
+    def should_not_delete_completed_tasks_in_habitica(mocker):
+        mocker.patch("habitica_api.HabiticaAPI.delete_task")
+        mocker.patch("habitica_api.HabiticaAPI.score_task")
+        mocker.patch("todoist_api.TodoistAPI.sync", return_value="2023-01-01T00:00:00Z")
+        mocker.patch("todoist_api.TodoistAPI.iter_pop_newly_completed_tasks", return_value=[
+            {
+                "item_object": {
+                    "content": "Test Task",
+                    "labels": [],
+                    "priority": 1,
+                }
+            }
+        ])
+
+        tasks_sync = TasksSync()
+        tasks_sync.run_forever()
+
+        habitica_api = tasks_sync.habitica
+        habitica_api.delete_task.assert_not_called()
+        habitica_api.score_task.assert_called_once()

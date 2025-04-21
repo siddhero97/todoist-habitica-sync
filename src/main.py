@@ -72,14 +72,7 @@ class StateHabiticaCreated(FSMState):
 
 class StateHabiticaFinished(FSMState):
     def next_state(self) -> None:
-        try:
-            self.context.habitica.delete_task(self.generic_task.get_habitica_task_id())
-        except HTTPError as ex:
-            if ex.response is not None and ex.response.status_code == HTTPStatus.NOT_FOUND:
-                _LOGGER.warning(f"Habitica task '{self.generic_task.content}' not found.")
-            else:
-                raise ex
-
+        _LOGGER.info(f"Task '{self.generic_task.content}' marked as completed in Habitica.")
         self.context.delete_state(self.generic_task)
 
 
